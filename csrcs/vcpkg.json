@@ -6,6 +6,14 @@
     {
       "name": "gtest",
       "version>=": "1.15.2"
+    },
+    {
+      "name": "boost-mp11",
+      "version>=": "1.85.0#1"
+    },
+    {
+      "name": "boost-describe",
+      "version>=": "1.85.0#2"
     }
   ]
 }
