@@ -1,7 +1,7 @@
 import unittest
 
-from python_template.ext import Greeter as ExtGreeter
-from python_template.hello_world.greeter import Greeter
+from auto_pybind.ext import Greeter as ExtGreeter
+from auto_pybind.hello_world.greeter import Greeter
 
 
 class TestGreeter(unittest.TestCase):

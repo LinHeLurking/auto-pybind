@@ -3,7 +3,7 @@ project(PythonExt LANGUAGES C CXX)
 
 set(PYBIND11_FINDPYTHON ON)
 find_package(pybind11 CONFIG REQUIRED)
-file(REAL_PATH ${CMAKE_CURRENT_LIST_DIR}/../python_template PYTHON_ROOT)
+file(REAL_PATH ${CMAKE_CURRENT_LIST_DIR}/../auto_pybind PYTHON_ROOT)
 message(STATUS "python source root: ${PYTHON_ROOT}")
 
 function(add_pyext PYEXT_NAME)

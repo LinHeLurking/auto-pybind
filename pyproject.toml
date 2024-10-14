@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "python_template"
+name = "auto_pybind"
 version = "0.1.0"
 description = "Python template project with tests and C extensions."
 authors = ["LinHeLurking"]
@@ -7,10 +7,10 @@ license = "MIT"
 readme = "README.md"
 include = [
     { path = "csrcs", format = "sdist" },
-    { path = "python_template/_ext*.so", format = "wheel" },
-    { path = "python_template/_ext*.dll", format = "wheel" },
-    { path = "python_template/_ext*.pyd", format = "wheel" },
-    { path = "python_template/_ext*.pyi", format = [
+    { path = "auto_pybind/ext*.so", format = "wheel" },
+    { path = "auto_pybind/ext*.dll", format = "wheel" },
+    { path = "auto_pybind/ext*.pyd", format = "wheel" },
+    { path = "auto_pybind/ext*.pyi", format = [
         "wheel",
         "sdist",
     ] },

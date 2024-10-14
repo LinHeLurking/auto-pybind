@@ -244,7 +244,7 @@ def main():
         cmake_extra_def["CMAKE_BUILD_TYPE"] = "Debug"
 
     ext_pybind11 = CmakeExtension(
-        module_name="python_template.ext",
+        module_name="auto_pybind.ext",
         cmake_src_dir=osp.join(PROJECT_ROOT, "csrcs"),
         dry_run=args.dry_run,
         cmake_extr_def=cmake_extra_def,
