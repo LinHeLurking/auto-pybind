@@ -1,0 +1,11 @@
+{
+  "name": "pythonext",
+  "version-string": "1.0.0",
+  "builtin-baseline": "d07689ef165f033de5c0710e4f67c193a85373e1",
+  "dependencies": [
+    {
+      "name": "gtest",
+      "version>=": "1.15.2"
+    }
+  ]
+}

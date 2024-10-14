@@ -1,0 +1,42 @@
+[tool.poetry]
+name = "python_template"
+version = "0.1.0"
+description = "Python template project with tests and C extensions."
+authors = ["LinHeLurking"]
+license = "MIT"
+readme = "README.md"
+include = [
+    { path = "csrcs", format = "sdist" },
+    { path = "python_template/_ext*.so", format = "wheel" },
+    { path = "python_template/_ext*.dll", format = "wheel" },
+    { path = "python_template/_ext*.pyd", format = "wheel" },
+    { path = "python_template/_ext*.pyi", format = [
+        "wheel",
+        "sdist",
+    ] },
+]
+
+[tool.isort]
+profile = "black"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
+pybind11 = "^2.13.5"
+ninja = "^1.11.1.1"
+cmake = "^3.30.2"
+pytest = "^8.3.2"
+mypy = "^1.11.1"
+pre-commit = "^3.8.0"
+
+[build-system]
+requires = ["poetry-core", "ninja", "cmake", "mypy", "pybind11"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.build]
+generate-setup-file = false
+script = "ext_build.py"
