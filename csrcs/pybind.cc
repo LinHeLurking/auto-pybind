@@ -16,5 +16,8 @@ namespace py = pybind11;
 PYBIND11_MODULE(MODULE_NAME, m) {
   py::init();
   m.doc() = "Sample pybind11 C++ extension";
-  Bind<BigObj>(m, "BigObj");
+  Bind<BigObj, NamePythonize>(m, "BigObj").def(py::init<std::string>());
+  Bind<SmallObj, NameAsIs>(m, "SmallObj").def(py::init<>());
+  // NamePythonize is default!
+  Bind<NoPyInitObj>(m, "NoPyInitObj");
 }

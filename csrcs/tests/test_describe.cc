@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
+#include <array>
 #include <boost/describe.hpp>
 #include <boost/mp11.hpp>
 

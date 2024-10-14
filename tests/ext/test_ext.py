@@ -1,23 +1,27 @@
-import unittest
-
-from auto_pybind.ext import Greeter as ExtGreeter
-from auto_pybind.hello_world.greeter import Greeter
+from auto_pybind.ext import BigObj, NoPyInitObj, SmallObj
 
 
-class TestGreeter(unittest.TestCase):
-    def setUp(self) -> None:
-        self.greeter = Greeter()
-        self.ext_greeter = ExtGreeter()
-        return super().setUp()
+def test_no_py_init():
+    try:
+        _ = NoPyInitObj()
+    except TypeError as e:
+        msg = str(e).split(":")[-1].strip()
+        assert msg == "No constructor defined!"
+    except:
+        assert False
 
-    def test_simple(self):
-        assert self.greeter.simple_greet() == self.ext_greeter.simple_greet()
 
-    def test_complex(self):
-        common_message = "RUA!"
-        names = ["Cloud", "Aerith", "Tifa"]
-        expected = self.greeter.complex_greet(
-            names=names, common_message=common_message
-        )
-        result = self.ext_greeter.complex_greet(names, common_message)
-        assert result == expected
+def test_can_init_obj():
+    obj = SmallObj()
+    # SmallObj names are passed as-is.
+    assert obj.v_ == 3
+
+
+def test_big_obj():
+    obj = BigObj("py")
+    assert obj.str == ""
+    assert obj.get_id() == "py"
+    assert obj.ia == [1, 2, 3, 4, 5]
+
+    # static member function
+    assert BigObj.greet("world") == "Hello world!"
