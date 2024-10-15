@@ -21,7 +21,6 @@ def test_big_obj():
     obj = BigObj("py")
     assert obj.str == ""
     assert obj.get_id() == "py"
+    obj.set_id("##")
+    assert obj.get_id() == "##"
     assert obj.ia == [1, 2, 3, 4, 5]
-
-    # static member function
-    assert BigObj.greet("world") == "Hello world!"

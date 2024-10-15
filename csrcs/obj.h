@@ -15,6 +15,7 @@ class BigObj {
   bool b1_{}, b2_{};
 
   [[nodiscard]] std::string GetId() const { return id_; }
+  void SetId(std::string id) { id_ = std::move(id); }
 
   static std::string Greet(const std::string& name) {
     return "Hello " + name + "!";
@@ -22,7 +23,8 @@ class BigObj {
 
  private:
   std::string id_{};
-  BOOST_DESCRIBE_CLASS(BigObj, (), (str_, i1_, i2_, ia_, b1_, b2_, GetId), (),
+  BOOST_DESCRIBE_CLASS(BigObj, (),
+                       (str_, i1_, i2_, ia_, b1_, b2_, GetId, SetId, Greet), (),
                        (id_))
 };
 

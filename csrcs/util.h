@@ -55,14 +55,15 @@ template <typename T>
 class IsNameConverter : public std::false_type {};
 
 template <typename T>
-  requires requires(T t) {
+  requires std::is_default_constructible_v<T> && requires {
     // it returns a string container
-    { t("").data() } -> std::convertible_to<const char*>;
+    { T{}("").data() } -> std::convertible_to<const char*>;
     // it's totally constexpr
     {
-      std::bool_constant<(t("").data(), true)>()
+      std::bool_constant<(T{}("").data(), true)>()
     } -> std::same_as<std::true_type>;
-  } && std::is_default_constructible_v<T>
+  }
+
 class IsNameConverter<T> : public std::true_type {};
 
 static_assert(IsNameConverter<NamePythonize>::value);
@@ -127,28 +128,22 @@ auto Bind(pybind11::module& m, std::string_view class_name) {
   auto pyclazz = py::class_<T>(m, class_name.data());
   using PubVar = describe_members<T, mod_public>;
   // including static functions
-  using PubMemberFunc = describe_members<T, mod_function | mod_public>;
-  using PubStaticFunc =
-      describe_members<T, mod_public | mod_static | mod_function>;
+  using PubMemberFunc = describe_members<T, mod_public | mod_function>;
   // using PrivateVar = describe_members<T, mod_private>;
   using NameConverter = typename GetNameConverter<OptionTuple>::type;
   constexpr auto name_converter = NameConverter{};
 
   // member variable
   mp_for_each<PubVar>([&](auto Desc) {
-    const char* var_name = name_converter(Desc.name).data();
+    constexpr auto buffer = name_converter(Desc.name);
+    auto var_name = buffer.data();
     pyclazz.def_readwrite(var_name, Desc.pointer);
   });
   // member function
   mp_for_each<PubMemberFunc>([&](auto Desc) {
-    constexpr const char* func_name = name_converter(Desc.name).data();
-    // TODO:
-    constexpr bool is_static = true;
-    if constexpr (is_static) {
-      //
-    } else {
-      pyclazz.def(func_name, Desc.pointer);
-    }
+    constexpr auto buffer = name_converter(Desc.name);
+    auto func_name = buffer.data();
+    pyclazz.def(func_name, Desc.pointer);
   });
 
   return pyclazz;
