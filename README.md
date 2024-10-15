@@ -47,7 +47,7 @@ Bind<BigObj, NamePythonize>(m, "BigObj").def(py::init<std::string>());
 
 Everthing is done by static reflection and metaprogramming.
 
-This repo also has a helper script which leverages `stubgen` from the `mypy` project, helping you to generate `*.pyi` stub files. Everything is generated automatically. You add a few lines of C++ codes and run `poetry build`. Then everything is done.
+This repo also has a helper script which leverages `stubgen` from the `mypy` project, helping you to generate `*.pyi` stub files. Everything is generated automatically. You add a few lines of C++ codes aforementioned and run `poetry build`. Then everything is done. Some python files will be generated and placed to correct directories.
 
 ```python
 class BigObj:
