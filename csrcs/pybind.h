@@ -2,6 +2,11 @@
 
 #include <pybind11/pybind11.h>
 
+#include <boost/describe.hpp>
+#include <boost/mp11.hpp>
+
+#include "util.h"
+
 template <typename T, typename... Options>
   requires boost::describe::has_describe_members<T>::value &&
            (!std::is_union_v<T>)
