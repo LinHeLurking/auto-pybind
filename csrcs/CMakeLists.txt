@@ -33,7 +33,7 @@ function(add_pyext PYEXT_NAME)
     install(TARGETS ${PYEXT_NAME} DESTINATION ${PYEXT_DESTINATION})
 endfunction()
 
-set(SRC_SET pybind.cc obj.h util.h)
+set(SRC_SET pybind.cc obj.h util.h pybind.h)
 add_pyext(ext DESTINATION ${PYTHON_ROOT} SOURCES ${SRC_SET})
 
 

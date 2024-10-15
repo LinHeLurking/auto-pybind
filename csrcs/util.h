@@ -1,9 +1,6 @@
 #pragma once
-#include <pybind11/pybind11.h>
 
 #include <array>
-#include <boost/callable_traits.hpp>
-#include <boost/describe.hpp>
 #include <boost/mp11.hpp>
 #include <filesystem>
 
@@ -49,8 +46,6 @@ class NameAsIs {
   }
 };
 
-class AddDefaultCtor {};
-
 template <typename T>
 class IsNameConverter : public std::false_type {};
 
@@ -67,6 +62,8 @@ template <typename T>
 class IsNameConverter<T> : public std::true_type {};
 
 static_assert(IsNameConverter<NamePythonize>::value);
+
+class NoGuessSetterGetter {};
 
 namespace details {
 template <typename Tuple>
@@ -88,63 +85,71 @@ struct GetNameConverter<Tuple> {
   using type = typename std::tuple_element_t<idx_, Tuple>;
 };
 
-template <typename D1, typename D2>
-struct IsSameDescriptor {
- public:
-  using D1P = std::integral_constant<int, D1::pointer>;
-  using D2P = std::integral_constant<int, D2::pointer>;
-  static constexpr bool value = std::is_same_v<D1, D2>;
+template <typename T>
+struct IsSameQ {
+  template <typename U>
+  using fn = std::is_same<U, T>;
 };
 
-template <typename D1>
-struct IsSameDescriptorQ {
- public:
-  template <typename D2>
-  using fn = IsSameDescriptor<D1, D2>;
-};
-}  // namespace details
-
-template <typename T, typename... Options>
-  requires boost::describe::has_describe_members<T>::value &&
-           (!std::is_union_v<T>)
-auto Bind(pybind11::module& m, std::string_view class_name) {
-  namespace py = pybind11;
-  using namespace boost::mp11;
-  using namespace boost::describe;
-  using namespace boost::callable_traits;
-  using namespace details;
-
-  //
-  // check options
-  //
-  using OptionTuple = std::tuple<Options...>;
-  constexpr size_t num_options = sizeof...(Options);
-
-  //
-  // actual binder code
-  //
-
-  // prepare
-  auto pyclazz = py::class_<T>(m, class_name.data());
-  using PubVar = describe_members<T, mod_public>;
-  // including static functions
-  using PubMemberFunc = describe_members<T, mod_public | mod_function>;
-  // using PrivateVar = describe_members<T, mod_private>;
-  using NameConverter = typename GetNameConverter<OptionTuple>::type;
-  constexpr auto name_converter = NameConverter{};
-
-  // member variable
-  mp_for_each<PubVar>([&](auto Desc) {
-    constexpr auto buffer = name_converter(Desc.name);
-    auto var_name = buffer.data();
-    pyclazz.def_readwrite(var_name, Desc.pointer);
-  });
-  // member function
-  mp_for_each<PubMemberFunc>([&](auto Desc) {
-    constexpr auto buffer = name_converter(Desc.name);
-    auto func_name = buffer.data();
-    pyclazz.def(func_name, Desc.pointer);
-  });
-
-  return pyclazz;
+consteval bool IsGetterName(const char* name) {
+  bool flag1 =
+      name[0] == 'g' && name[1] == 'e' && name[2] == 't' && name[4] == '_';
+  bool flag2 = name[0] == 'G' && name[1] == 'e' && name[2] == 't';
+  return flag1 || flag2;
 }
+
+consteval bool IsSetterName(const char* name) {
+  bool flag1 =
+      name[0] == 's' && name[1] == 'e' && name[2] == 't' && name[4] == '_';
+  bool flag2 = name[0] == 'S' && name[1] == 'e' && name[2] == 't';
+  return flag1 || flag2;
+}
+
+template <typename T>
+struct DescriptorIsGetter {
+  static constexpr bool value = IsGetterName(T::name);
+};
+
+template <typename T>
+struct DescriptorIsSetter {
+  static constexpr bool value = IsSetterName(T::name);
+};
+
+consteval auto GetSetterNameFromGetterName(const char* name) {
+  std::array<char, 128> buffer{};
+  std::ranges::fill(buffer, 0);
+  std::copy_if(name, name + 128, buffer.begin(), [](char c) { return c == 0; });
+  if (buffer[0] == 'G') {
+    buffer[0] = 'S';
+  } else if (buffer[0] == 'g') {
+    buffer[0] = 's';
+  }
+  return buffer;
+}
+
+consteval auto GetPropertyNameFromGetterName(std::array<char, 128> name) {
+  std::array<char, 128> buffer{};
+  int offset = 3 + int(name[3] == '_');
+  std::copy(name.begin() + offset, name.end(), buffer.begin());
+  return buffer;
+}
+
+consteval bool StrEq(const char* a, const char* b, size_t offset) {
+  size_t i = offset;
+  for (; a[i] != 0 && b[i] != 0 && a[i] == b[i]; ++i) {
+  }
+  return a[i] == 0 && b[i] == 0;
+}
+
+template <typename D1, typename D2, size_t offset>
+struct NameEqual {
+  static constexpr bool value = StrEq(D1::name, D2::name, offset);
+};
+
+template <typename D1, size_t offset = 0>
+struct NameEqualQ {
+  template <typename D2>
+  using fn = NameEqual<D1, D2, offset>;
+};
+
+}  // namespace details
